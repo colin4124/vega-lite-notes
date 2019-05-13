@@ -15,12 +15,12 @@ $ tar xvf riscv32-unknown-elf-gcc.tar.gz
 **** 自行编译
 这里假设已经安装好 gcc 等一系列基本的开发环境，每个 Linux 发行版的安装方式各不相同，比如：
 
-**Ubuntu**
+*Ubuntu*
 #+begin_src shell
 $ sudo apt-get install autoconf automake autotools-dev curl libmpc-dev libmpfr-dev libgmp-dev gawk build-essential bison flex texinfo gperf libtool patchutils bc zlib1g-dev libusb-1.0-0-dev libudev libudev1 libudev-dev g++
 #+end_src
 
-**AOSC**
+*AOSC*
 #+begin_src shell
 $ sudo apt install devel-base
 #+end_src
@@ -130,7 +130,7 @@ ri5cy_boot
 
 等待命令完成后松开复位按钮。此时复位键旁的灯（D1）会一直亮红。因为 **更改启动配置的操作,将清除（删掉里面的程序）整个 Flash，令板子一直处于 Reset 状态** 。等到后面烧写程序到 Flash，红灯就不会亮了。
 
-**关掉 OpenOCD**
+*关掉 OpenOCD*
 
 *** 编译并烧入 Hello world 程序
 
@@ -154,7 +154,7 @@ $ export RISCV32GCC_DIR=/tmp/riscv32-unknown-elf-gcc
 
 下载预先编译好的 ~openocd~ 我放在 ~/tmp~ ，而 SDK 也在 ~/tmp~ 里，因此在 ~telnet~ 输入 ~hello_world.elf~ 的相对运行 ~openocd~ 的路径，我是在 ~/tmp~ 目录下运行的。
 
-**注：** 输入完下列命令 : ~program rv32m1_sdk_riscv/boards/rv32m1_vega/demo_apps/hello_world/ri5cy/riscvgcc/release/hello_world.elf~ ，然后一直按住复位键（SW1）再按回车键。
+*注：* 输入完下列命令 : ~program rv32m1_sdk_riscv/boards/rv32m1_vega/demo_apps/hello_world/ri5cy/riscvgcc/release/hello_world.elf~ ，然后一直按住复位键（SW1）再按回车键。
 
 #+begin_src 
 Open On-Chip Debugger
