@@ -1,0 +1,179 @@
+* Setup
+*** 用板载调试器调试 RISCV 核
+** Linux
+*** 工具链
+**** 下载预先编译好的工具链
+https://github.com/open-isa-cn/vega-lite/releases/download/1.0.0/Toolchain_Linux.tar.gz 
+
+下载解压：
+
+#+begin_src shell
+$ tar xvf Toolchain_Linux.tar.gz
+$ tar xvf openocd.tar.gz
+$ tar xvf riscv32-unknown-elf-gcc.tar.gz
+#+end_src
+**** 自行编译
+这里假设已经安装好 gcc 等一系列基本的开发环境，每个 Linux 发行版的安装方式各不相同，比如：
+
+**Ubuntu**
+#+begin_src shell
+$ sudo apt-get install autoconf automake autotools-dev curl libmpc-dev libmpfr-dev libgmp-dev gawk build-essential bison flex texinfo gperf libtool patchutils bc zlib1g-dev libusb-1.0-0-dev libudev libudev1 libudev-dev g++
+#+end_src
+
+**AOSC**
+#+begin_src shell
+$ sudo apt install devel-base
+#+end_src
+
+**** 编译支持 RV32M1 的 PULP GNU toolchain 
+
+#+begin_src shell
+# clone pulp-riscv-gnu-toolchain
+$ git clone --recursive https://github.com/pulp-platform/pulp-riscv-gnu-toolchain
+# clone RV32M1 GNU toolchain patch
+$ git clone https://github.com/open-isa-rv32m1/rv32m1_gnu_toolchain_patch.git
+# Copy and apply the patch
+$ cp rv32m1_gnu_toolchain_patch/apply_rv32m1_patches.sh pulp-riscv-gnu-toolchain/
+$ cp -r rv32m1_gnu_toolchain_patch/rv32m1_patches pulp-riscv-gnu-toolchain/
+$ cd pulp-riscv-gnu-toolchain
+$ bash ./apply_rv32m1_patches.sh
+# Build the toolchain
+$ ./configure --prefix=/opt/pulp --with-arch=rv32imc --with-cmodel=medlow --enable-
+multilib
+$ sudo make
+#+end_src
+
+如果遇到 ~error: invalid use of incomplete type~ 的问题，解决办法是：
+修改 ~pulp-riscv-gnu-toolchain/riscv-binutils-gdb/gdb/configure~ :
+
+把
+
+#+begin_src shell
+try_guile_versions=”guile-2.2 guile-2.0″
+#+end_src
+
+改成
+
+#+begin_src shell
+try_guile_versions=”guile-2.0″
+#+end_src
+
+再重新编译。
+
+参考链接：https://forums.sifive.com/t/freedom-e-sdk-toolchain-fails-to-build/530/6
+
+**** 编译 OpenOCD
+#+begin_src shell
+# Download the source code
+$ git clone --recurse https://github.com/open-isa-rv32m1/rv32m1-openocd.git
+# Build and install
+$ cd rv32m1-openocd
+$ ./bootstrap
+$ ./configure --prefix=/opt/pulp
+$ make
+$ sudo make install
+#+end_src
+
+如果用的是 ~GCC 8~ 编译出错，尝试用基于最新的 ~riscv-openocd~ 加上支持 RV32M1 补丁的版本：
+
+#+begin_src shell
+$ git clone https://github.com/colin4124/rv32m1-openocd.git
+$ git checkout rv32mi
+$ cd rv32m1-openocd
+$ .bootstrap
+$ ./configure --prefix=/opt/pulp --disable-target64
+$ make
+$ sudo make install
+#+end_src
+
+*** SDK
+https://github.com/open-isa-cn/vega-lite/releases/download/1.0.0/rv32m1_sdk_riscv.tar.gz
+
+下载解压：
+
+#+begin_src shell
+$ tar xvf rv32m1_sdk_riscv.tar.gz
+#+end_src
+
+*** 串口通信工具 miniterm
+#+begin_src shell
+$ sudo pip install pyserial
+#+end_src
+
+*** OpenOCD
+将 Micro-USB 数据线插入 J11，运行 OpenOCD
+
+#+begin_src shell
+$ sudo ./openocd -f rv32m1_sdk_riscv/boards/rv32m1_vega/rv32m1_ri5cy.cfg
+#+end_src
+
+如果有错误提示：
+#+begin_src 
+./openocd: error while loading shared libraries: libhidapi-hidraw.so.0: cannot open shared object file: No such file or directory
+#+end_src
+
+安装 ~hidapi~ :
+#+begin_src shell
+$ sudo apt install hidapi
+#+end_src
+
+*** 更改启动配置
+#+begin_src shell
+$ telnet localhost 4444
+#+end_src
+
+一直按住复位键(SW1)的同时,在 telnet 窗口中输入以下命令并回车：
+
+#+begin_src shell
+ri5cy_boot
+#+end_src
+
+等待命令完成后松开复位按钮。此时复位键旁的灯（D1）会一直亮红。因为 **更改启动配置的操作,将清除（删掉里面的程序）整个 Flash，令板子一直处于 Reset 状态** 。等到后面烧写程序到 Flash，红灯就不会亮了。
+
+**关掉 OpenOCD**
+
+*** 编译并烧入 Hello world 程序
+
+**** 1. 进入 Hello World 目录
+#+begin_src shell
+$ cd rv32m1_sdk_riscv/boards/rv32m1_vega/demo_apps/hello_world/ri5cy/riscvgcc/
+#+end_src
+
+**** 2. 设置 RISCV32GCC_DIR 环境变量
+我把下载的 GCC Toolchain 放到 ~/tmp~ 下，方便演示，你应该改为 ~/path/to/riscv32-unknown-elf-gcc~ 
+#+begin_src shell
+$ export RISCV32GCC_DIR=/tmp/riscv32-unknown-elf-gcc
+#+end_src
+
+**** 3. 编译和烧写程序
+#+begin_src shell
+./build_release.sh
+#+end_src
+
+编译好的放在当前目录的 ~release~ 里。
+
+下载预先编译好的 ~openocd~ 我放在 ~/tmp~ ，而 SDK 也在 ~/tmp~ 里，因此在 ~telnet~ 输入 ~hello_world.elf~ 的相对运行 ~openocd~ 的路径，我是在 ~/tmp~ 目录下运行的。
+
+**注：** 输入完下列命令 : ~program rv32m1_sdk_riscv/boards/rv32m1_vega/demo_apps/hello_world/ri5cy/riscvgcc/release/hello_world.elf~ ，然后一直按住复位键（SW1）再按回车键。
+
+#+begin_src 
+Open On-Chip Debugger
+> program rv32m1_sdk_riscv/boards/rv32m1_vega/demo_apps/hello_world/ri5cy/riscvgcc/release/hello_world.elf
+#+end_src
+
+等待命令完成后松开复位按钮，此时复位键旁的本来一直亮红灯（D1）会熄灭，说明程序已经烧进 Flash 。
+
+*** 打开串口通信程序并执行 Hello World 程序
+打开串口通信程序 ~miniterm~ ：
+
+#+begin_src shell
+$ sudo miniterm /dev/ttyACM0 115200
+#+end_src
+
+在 ~telnet~ 命令行执行 ~reset~ ，复位 CPU ，执行 Hello world 程序。
+
+#+begin_src shell
+> reset
+#+end_src
+
+此时会在 ~miniterm~ 界面上显示 ~hello world.~
