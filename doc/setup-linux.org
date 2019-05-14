@@ -1,9 +1,9 @@
 * Linux 下配置开发环境
 *** 用板载调试器调试 RISCV 核
 虽然 [[https://www.nxp.com/support/developer-resources/software-development-tools/lpc-developer-resources-/lpc-microcontroller-utilities/lpcscrypt-v2.1.0:LPCSCRYPT?&tab=Design_Tools_Tab][LPCScrypt Linux Installer v2.1.0]] 支持 ubuntu，但咧威用的发行版不是支持该二进制包，因此是在 Windows 下更新好 FreeLink 固件。
-** Linux
-*** 工具链
-**** 下载预先编译好的工具链
+** 安装工具链
+安装工具链的方式有两种: 下载预先编译好的工具链，或者是自行编译
+*** 1. 下载预先编译好的工具链
 https://github.com/open-isa-cn/vega-lite/releases/download/1.0.0/Toolchain_Linux.tar.gz 
 
 下载解压：
@@ -13,7 +13,7 @@ $ tar xvf Toolchain_Linux.tar.gz
 $ tar xvf openocd.tar.gz
 $ tar xvf riscv32-unknown-elf-gcc.tar.gz
 #+end_src
-**** 自行编译
+*** 2. 自行编译
 这里假设已经安装好 gcc 等一系列基本的开发环境，每个 Linux 发行版的安装方式各不相同，比如：
 
 *Ubuntu*
@@ -26,7 +26,7 @@ $ sudo apt-get install autoconf automake autotools-dev curl libmpc-dev libmpfr-d
 $ sudo apt install devel-base
 #+end_src
 
-**** 编译支持 RV32M1 的 PULP GNU toolchain 
+*** 编译支持 RV32M1 的 PULP GNU toolchain 
 
 #+begin_src shell
 # clone pulp-riscv-gnu-toolchain
@@ -63,7 +63,7 @@ try_guile_versions=”guile-2.0″
 
 参考链接：https://forums.sifive.com/t/freedom-e-sdk-toolchain-fails-to-build/530/6
 
-**** 编译 OpenOCD
+*** 编译 OpenOCD
 #+begin_src shell
 # Download the source code
 $ git clone --recurse https://github.com/open-isa-rv32m1/rv32m1-openocd.git
@@ -87,7 +87,7 @@ $ make
 $ sudo make install
 #+end_src
 
-*** SDK
+*** 安装 SDK
 https://github.com/open-isa-cn/vega-lite/releases/download/1.0.0/rv32m1_sdk_riscv.tar.gz
 
 下载解压：
