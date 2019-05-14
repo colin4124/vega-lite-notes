@@ -1,5 +1,6 @@
-* Setup
+* Linux 下配置开发环境
 *** 用板载调试器调试 RISCV 核
+虽然 [[https://www.nxp.com/support/developer-resources/software-development-tools/lpc-developer-resources-/lpc-microcontroller-utilities/lpcscrypt-v2.1.0:LPCSCRYPT?&tab=Design_Tools_Tab][LPCScrypt Linux Installer v2.1.0]] 支持 ubuntu，但咧威用的发行版不是支持该二进制包，因此是在 Windows 下更新好 FreeLink 固件。
 ** Linux
 *** 工具链
 **** 下载预先编译好的工具链

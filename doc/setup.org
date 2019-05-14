@@ -1,0 +1,21 @@
+* 搭建开发环境
+** 用板载调试器来调试织女星开发板的RISC-V核
+#+BEGIN_QUOTE
+因为设计板子的时候，咨询过Segger公司能否使用Segger J-Link固件来调试非arm核，当时没有获得Segger官方确认，所以我们没有把FreeLink的JTAG信号直接连到RV32M1的JTAG调试接口上。后来得到官方确认可以使用，但是时间经来不及了。如果有下个版本的硬件，我们将修改设计不需要这里描述的飞线修改板子。
+#+END_QUOTE
+
+要使用FreeLink调试RISC-V核，只需要将FreeLink的JTGA信号连接到RISC-V核的JTAG调试连接头(J17)就可以了。用杜邦线按照下面的方式焊接好，从板子的背部连线更方便：
+
+- WD_DIO_TGTMCU_BUF（J12的2脚）连接到J17的2脚 (图中红色的线）
+- SWD_CLK_TGTMCU_BU（J8的2脚）连接到J17的4脚 （图中黄色的线）
+- JTAG_TDO_TGTMCU_BUF（J10的2脚）连接到J17的6脚（图中紫色的线）
+- JTAG_TDI_TGTMCU_BUF（J9的2脚）连接到J17的8脚（图中绿色的线）
+
+[[file:imgs-setup/vega-1.png]]
+
+
+*更新驱动的方式见 Windows 下搭建开发环境*
+** Windows 下搭建开发环境
+
+** Linux 下搭建开发环境
+[[file:setup-linux.org][Linux]]

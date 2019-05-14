@@ -1,0 +1,134 @@
+* Windows 下配置开发环境
+** 更新FreeLink固件
+下载 [[https://www.nxp.com/downloads/en/software/LPCScrypt_installer_2.1.0_842.exe][LPCScrypt Windows Installer v2.1.0]] 并安装好，这里是安装到 ~C:\NXP~ 。将织女星开发板上J7用跳帽连接，然后将 UBS 接口（J11）连到电脑。进入 ~C:\NXP\LPCScrypt_2.1.0_842\scripts~ ，双击 ~program_JLINK~ ，按下空格开始更新固件。
+
+[[file:imgs-setup/vega-2.png]]
+
+更新好之后，拔出 ~USB~ 线再重新接入。
+
+[[file:imgs-setup/vega-3.png]]
+
+
+** 下载解压工具链和SDK
+
+[[https://github.com/open-isa-cn/vega-lite/releases/download/1.0.0/Toolchain_Windows.zip][Windows版本的GNU GCC和OpenOCD]]
+
+
+[[https://github.com/open-isa-cn/vega-lite/releases/download/1.0.0/rv32m1_sdk_riscv.zip][织女星开发板的RISC-V SDK的Windows压缩包]]
+
+这里是解压缩到 ~E:\~ 
+
+** 安装 JLink 驱动
+
+在解压好的 OpenOCD 目录下 ~E:\Toolchain_Windows\openocd\drivers~ 双击 ~UsbDriverTool~
+
+[[file:imgs-setup/vega-4.png]]
+
+找到 ~J-Link driver~ ，右键选择 ~Install WinUSB~ 。
+
+[[file:imgs-setup/vega-5.png]]
+
+安装好后 ~J-Link driver~ 旁边会多出 ~(WinUSB)~ 如下图所示：
+
+[[file:imgs-setup/vega-6.png]]
+
+** 运行 OpenOCD 
+
+从 ~SDK~ 文件夹里（ ~E:\rv32m1_sdk_riscv\boards\rv32m1_vega~ ）复制 ~rv32m1_ri5cy.cfg~ 文件到 ~OpenOCD~ （ ~E:\Toolchain_Windows\openocd\bin~ ）。
+
+[[file:imgs-setup/vega-7.png]]
+
+然后在空白处，按住 ~Shift~ 键的同时，鼠标右键，选择 ~在此处打开命令行窗口~ （这里是 Powershell）。
+
+[[file:imgs-setup/vega-8.png]]
+
+在命令行输入 ~.\openocd.exe -f .\rv32m1_ri5cy.cfg~ 。如下图所示：
+
+[[file:imgs-setup/vega-9.png]]
+
+** 安装 CMake
+
+下载最新的 ~CMake~ [[https://github.com/Kitware/CMake/releases/download/v3.14.3/cmake-3.14.3-win64-x64.msi][cmake-3.14.3-win64-x64.msi]] 并安装，记得在安装的时候选上 ~为所有用户添加 CMake 到系统的 PATH 环境变量。~ 
+
+[[file:imgs-setup/vega-10.png]]
+
+** 安装 MinGW64 
+
+下载并安装 [[http://mirrors.ustc.edu.cn/msys2/distrib/x86_64/msys2-x86_64-20181211.exe][msys2-x86_64-20181211.exe]] ，这里安装在 ~E:\~ 。安装好之后打开输入命令 ~pacman -S mingw-w64-x86_64-toolchain~ 安装基本的开发工具：
+
+[[file:imgs-setup/vega-11.png]]
+
+安装完之后
+
+*** 添加环境变量
+
+打开文件管理器，在右上角找到 ~计算机->系统属性~
+
+[[file:imgs-setup/vega-12.png]]
+
+选择右上角的 ~系统信息~
+
+[[file:imgs-setup/vega-13.png]]
+
+在左边找到 ~高级系统设置~
+
+[[file:imgs-setup/vega-14.png]]
+
+点击最底下的环境变量
+
+[[file:imgs-setup/vega-15.png]]
+
+找到 ~Path~ 并双击：
+
+[[file:imgs-setup/vega-16.png]]
+
+在空白出双击加入 ~MinGW~ 的路径 ~E:\msys64\mingw64\bin~ ：
+
+[[file:imgs-setup/vega-17.png]]
+
+
+** 配置 RISCV Toolchain
+*** 添加 RISCV32GCC_DIR 环境变量
+
+新建 ~RISCV32GCC_DIR~ 环境变量，变量值写入 ~E:\Toolchain_Windows\riscv32-unknown-elf-gcc~
+
+[[file:imgs-setup/vega-18.png]]
+** 编译 Hello World
+
+进入 ~E:\rv32m1_sdk_riscv\boards\rv32m1_vega\demo_apps\hello_world\ri5cy\riscvgcc~  。按住 ~Shift~ 键，在空白处右键，选择 ~在此处打开命令行窗口~
+
+[[file:imgs-setup/vega-19.png]]
+
+在命令行输入 ~build_release.bat~ 。开始编译，如下所示即编译成功。
+
+[[file:imgs-setup/vega-20.png]]
+
+然后把 ~release~ 文件夹里的 ~hello_world.elf~ 复制到 ~openocd~ 的文件夹。
+
+
+[[file:imgs-setup/vega-21.png]]
+
+[[file:imgs-setup/vega-22.png]]
+
+** 打开 Telnet
+
+打开命令行，输入： ~pkgmgr /iu:"TelnetClient"~ 
+
+再输入： ~telnet localhost 4444~ 。在 ~Telnet~ 命令行里输入 ~ri5cy_boot~ ， *一直按住板子的复位键（SW1)* ，然后再回车，等执行完后再松开复位键。
+
+[[file:imgs-setup/vega-23.png]]
+
+此时 ~Flash~ 的内容会被擦除，复位键旁边会亮起红灯，表示板子一直处于复位状态。
+
+** 下载 PuTTY
+
+下载并安装 [[https://the.earth.li/~sgtatham/putty/latest/w64/putty-64bit-0.71-installer.msi][putty-64bit-0.71-installer.msi]]
+
+在设备管理器找到当前的 ~COM~ 口号，在 ~PuTTY~ 上输入对应的 ~COM~ 口号，波特率 ~115200~ 。
+
+[[file:imgs-setup/vega-24.png]]
+
+** 烧写 Hello World 程序
+在 ~Telnet~ 命令行输入 ~program hello_world.elf~ ，如果烧写失败再重复执行。烧写完毕之后，在 ~Telnet~ 命令行输入 ~reset~ ，即可在 ~PuTTY~ 窗口看到 ~hello world.~
+
+[[file:imgs-setup/vega-25.png]]
