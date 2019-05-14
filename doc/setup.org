@@ -16,6 +16,6 @@
 
 *更新驱动的方式见 Windows 下搭建开发环境*
 ** Windows 下搭建开发环境
-
+[[file:setup-windows.org][Windows]]
 ** Linux 下搭建开发环境
 [[file:setup-linux.org][Linux]]
